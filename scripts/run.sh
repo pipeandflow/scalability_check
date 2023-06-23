@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#THIS SCRIPT RUNS PIMD SIMULATIONS IN LAMMPS USING ENV VARS 
+#THAT WERE DEFINED IN THE QSUB COMMAND USING THE -v FLAG.
+#COMP IS THE COMPILER (GNU/INTEL).
+#LMP IS THE PATH TO THE LAMMPS EXEC.
+#RUNDIR IS THE PATH TO THE FOLDER WITH THE INPUT FILE, WHERE THE JOB WILL RUN.
+#NCORES IS THE NUMBER OF CORES. FOR PIMD IT IS EQUAL TO NUMBER OF BEADS. 
+#INP IS THE NAME OF THE INPUT FILE (input).
+
+#check that the env vars are defined
+
+#load modules and compile
+COMP=GNU
+module load gcc/gcc-8.2.0
+module load mpi/openmpi-4.0.5-IB
+
+#send job
+cd $RUNDIR
+cat $PBS_NODEFILE
+mpirun -n ${NCORES} --hostfile ${PBS_NODEFILE} $LMP -in in.lj.singleNode -screen none -log log.lammps.${NCORES}.${COMP}

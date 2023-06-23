@@ -1,0 +1,5 @@
+.snakemake/
+snakejob*
+run/
+results/
+log/
