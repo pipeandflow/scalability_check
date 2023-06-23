@@ -20,7 +20,7 @@ cores = np.array( cores, dtype=float )
 nodes = cores 
 eff = loop[0]/nodes/loop
 
-plt.plot(cores, eff, "o")
+plt.plot(cores, eff, "o-")
 plt.savefig('core_scalability.png')
 
 #df = pd.DataFrame({"cores" : cores, "loop": loop, "efficiency" : eff})

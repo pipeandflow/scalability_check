@@ -92,6 +92,7 @@ rule run_multi_node:
         nodes = lambda wildcards: wildcards['num_nodes'],
         threads = lambda wildcards: wildcards['num_cores_on_node'],
         rundir = lambda wildcards, output: os.path.dirname(output[0]),
+        total_procs = lambda wildcards: int(wildcards['num_nodes']) * int(wildcards['num_cores_on_node']),
         lmp = config['LMP']
     log:
         'log/log.lammps.{num_nodes}X{num_cores_on_node}.GNU'
@@ -108,7 +109,7 @@ rule run_multi_node:
         #send job
         cd $RUNDIR
         cat $PBS_NODEFILE
-        mpirun -mca btl self,vader,openib -n {params.threads} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        mpirun -mca btl self,vader,openib -n {params.total_procs} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
         cd ${{ORIGDIR}}
         grep Loop {log} >& {output}
         """
