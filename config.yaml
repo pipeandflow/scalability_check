@@ -1,4 +1,5 @@
-LMP: '/hirshblab/data/lammps-bh/src/lmp_g++_openmpi'
-num_cores_single_node: [1,2,4,8,16,32,64,96]
-num_nodes: [1,2,4,8]
-num_cores_on_node: 96  # should be 128. currently misconfigured in PBS
+LMP: '/hirshblab/data/michaelref/lammps-michaelr/src/lmp_g++_openmpi'
+num_cores_single_node: [1,2,4,8,16,32,64,128]
+num_nodes: [1,2,4,8,12, 14]
+#num_nodes: [1,2,3]
+num_cores_on_node: 128  

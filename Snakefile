@@ -3,7 +3,7 @@ min_version("7.23.0")
 
 configfile: "config.yaml"
 
-localrules: all, plot_core_scalability
+localrules: all, plot_core_scalability, plot_node_scalability
 
 rule all:
     input:
@@ -63,13 +63,14 @@ rule run_single_node:
         threads = lambda wildcards: wildcards['num_cores'],
         rundir = lambda wildcards, output: os.path.dirname(output[0]),
         lmp = config['LMP']
+    threads: lambda wildcards: int(wildcards['num_cores'])
     log:
         'log/log.lammps.{num_cores}.GNU'
     shell:
         """
         set -x
-        module load gcc/gcc-12.1.0
-        module load mpi/openmpi-4.1.4
+        module load gcc/gcc-12.1
+        module load openmpi/openmpi-4.1.5
         ORIGDIR=`pwd`
 
         COMP=GNU
@@ -78,7 +79,9 @@ rule run_single_node:
         #send job
         cd $RUNDIR
         cat $PBS_NODEFILE
-        mpirun -mca btl self,vader,openib -n {params.threads} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        export UCX_TLS=rc,self,sm
+        #mpirun -n {params.threads} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        mpirun -n {params.threads} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
         cd ${{ORIGDIR}}
         grep Loop {log} >& {output}
         """
@@ -100,7 +103,9 @@ rule run_multi_node:
         """
         set -x
         module load gcc/gcc-12.1.0
-        module load mpi/openmpi-4.1.4
+        BASE_MPI=/usr/mpi/gcc/openmpi-4.1.5a1/
+        export PATH="${{BASE_MPI}}/bin:$PATH"
+        export LD_LIBRARY_PATH="${{BASE_MPI}}/lib:$LD_LIBRARY_PATH"
         ORIGDIR=`pwd`
 
         COMP=GNU
@@ -109,7 +114,7 @@ rule run_multi_node:
         #send job
         cd $RUNDIR
         cat $PBS_NODEFILE
-        mpirun -mca btl self,vader,openib -n {params.total_procs} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        mpirun -n {params.total_procs} -x UCX_NET_DEVICES=mlx5_0:1 --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
         cd ${{ORIGDIR}}
         grep Loop {log} >& {output}
         """
