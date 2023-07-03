@@ -70,7 +70,10 @@ rule run_single_node:
         """
         set -x
         module load gcc/gcc-12.1
-        module load openmpi/openmpi-4.1.5
+        #module load openmpi/openmpi-4.1.5
+        BASE_MPI=/usr/mpi/gcc/openmpi-4.1.5a1/
+        export PATH="${{BASE_MPI}}/bin:$PATH"
+        export LD_LIBRARY_PATH="${{BASE_MPI}}/lib:$LD_LIBRARY_PATH"
         ORIGDIR=`pwd`
 
         COMP=GNU
@@ -79,9 +82,7 @@ rule run_single_node:
         #send job
         cd $RUNDIR
         cat $PBS_NODEFILE
-        export UCX_TLS=rc,self,sm
-        #mpirun -n {params.threads} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
-        mpirun -n {params.threads} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        mpirun -n {params.threads} --bind-to none --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
         cd ${{ORIGDIR}}
         grep Loop {log} >& {output}
         """
@@ -114,7 +115,7 @@ rule run_multi_node:
         #send job
         cd $RUNDIR
         cat $PBS_NODEFILE
-        mpirun -n {params.total_procs} -x UCX_NET_DEVICES=mlx5_0:1 --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        mpirun -n {params.total_procs} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
         cd ${{ORIGDIR}}
         grep Loop {log} >& {output}
         """
