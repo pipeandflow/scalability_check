@@ -8,5 +8,5 @@ Edit the file `config.yaml` to set the parameters of the workflow.
 Running
 ========
 ```bash
-snakemake --cluster 'qsub -q hirshb-new -l nodes={params.nodes}:ppn={params.threads}' --cluster-cancel 'qdel' --latency-wait 30  -j 10 plot_node_scalability
+snakemake --cluster 'qsub -q hirshb-new -l nodes={params.nodes}:ppn={params.threads}' --cluster-cancel 'qdel' --latency-wait 30  -j 30
 ```
