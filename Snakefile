@@ -82,7 +82,7 @@ rule run_single_node:
         #send job
         cd $RUNDIR
         cat $PBS_NODEFILE
-        mpirun -n {params.threads} --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
+        mpirun -n {params.threads} --bind-to none --hostfile ${{PBS_NODEFILE}} {params.lmp} -in ${{ORIGDIR}}/{input[0]} -screen none -log ${{ORIGDIR}}/{log}
         cd ${{ORIGDIR}}
         grep Loop {log} >& {output}
         """
