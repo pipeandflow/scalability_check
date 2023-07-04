@@ -47,7 +47,7 @@ rule plot_node_scalability:
         cat {input} > timings
         mv timings {params.rundir}
         cd {params.rundir} 
-        python ${{origdir}}/scripts/analyze_efficiency.py
+        python ${{origdir}}/scripts/analyze_efficiency_multinode.py
         mv core_scalability.png ${{origdir}}/{output} 
         """
 
